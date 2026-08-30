@@ -41,7 +41,7 @@
   const renderCredit = () => {
     creditEl.textContent = formatUsd(creditCents);
     creditEl.classList.toggle("is-empty", creditCents !== null && creditCents < cacheHitCostCents);
-    balanceRateEl.textContent = `${formatUsd(cacheHitCostCents)} hit · ${formatUsd(cacheMissCostCents)} miss`;
+    balanceRateEl.textContent = `${formatUsd(cacheHitCostCents)} cached · ${formatUsd(cacheMissCostCents)} fresh`;
     tryBtn.disabled = !apiKeyInput.value.trim() || creditCents === null || creditCents < cacheHitCostCents;
   };
 
