@@ -62,6 +62,7 @@ pub struct Settings {
     pub allow_password_login: bool,
     linkedin_profile_query_id: Option<String>,
     pub session_state_path: String,
+    cookie_fingerprint: Option<String>,
 
     // ---------------------------------------------------------- upstream client
     pub user_agent: String,
@@ -116,6 +117,7 @@ impl Default for Settings {
             allow_password_login: false,
             linkedin_profile_query_id: None,
             session_state_path: ".cache/linkedin_session.json".to_string(),
+            cookie_fingerprint: None,
             user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, \
                          like Gecko) Chrome/126.0.0.0 Safari/537.36"
                 .to_string(),
@@ -163,6 +165,7 @@ impl std::fmt::Debug for Settings {
             .field("trusted_proxies", &self.trusted_proxies)
             .field("has_li_at", &self.linkedin_li_at.is_some())
             .field("has_cookie_header", &self.linkedin_cookie_header.is_some())
+            .field("cookie_fingerprint", &self.cookie_fingerprint)
             .field("has_jsessionid", &self.linkedin_jsessionid.is_some())
             .field(
                 "extra_cookies",
@@ -484,6 +487,10 @@ impl Settings {
                 "CORS is set to '*' in production"
             );
         }
+        s.cookie_fingerprint = s
+            .linkedin_cookie_header
+            .as_deref()
+            .map(fingerprint_cookie_header);
         Ok(s)
     }
 
@@ -583,6 +590,37 @@ fn nonempty_var(name: &str) -> Option<String> {
 
 fn blank_to_none(name: &str) -> Option<String> {
     env::var(name).ok().filter(|v| !v.trim().is_empty())
+}
+
+/// Heads of the security-relevant cookies plus their total length, so the
+/// startup log can prove which cookie header the container received and
+/// whether it was truncated, without printing a secret.
+fn fingerprint_cookie_header(header: &str) -> String {
+    fn head(value: &str, n: usize) -> String {
+        let v = value.trim();
+        v.chars().take(n).collect()
+    }
+    let mut li_at = String::new();
+    let mut jsessionid = String::new();
+    let mut cf_bm = String::new();
+    for piece in header.split(';') {
+        let Some((name, value)) = piece.split_once('=') else {
+            continue;
+        };
+        match name.trim() {
+            "li_at" => li_at = head(value, 12),
+            "JSESSIONID" => jsessionid = head(value, 12),
+            "__cf_bm" => cf_bm = head(value, 12),
+            _ => {}
+        }
+    }
+    format!(
+        "len={} li_at={} JSESSIONID={} cf_bm={}",
+        header.len(),
+        if li_at.is_empty() { "MISSING" } else { li_at.as_str() },
+        if jsessionid.is_empty() { "MISSING" } else { jsessionid.as_str() },
+        if cf_bm.is_empty() { "MISSING" } else { cf_bm.as_str() },
+    )
 }
 
 fn split_csv(value: &str) -> Vec<String> {

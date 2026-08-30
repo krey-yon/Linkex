@@ -3,3 +3,4 @@
 .cache
 /config/api_keys.json
 /scripts/config.json
+coolify.env

@@ -43,6 +43,7 @@ async fn main() -> anyhow::Result<()> {
     let settings = Arc::new(Settings::from_env()?);
     tross::telemetry::init_logging(&settings);
     tracing::info!(settings = ?settings, "startup.beginning");
+    log_egress_ip().await;
 
     let billing = if settings.billing_enabled {
         let store = BillingStore::connect(&settings.redis_url).await?;
@@ -102,8 +103,28 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn shutdown_signal() {
-    let ctrl_c = async {
+async fn log_egress_ip() {
+    // ponytail: one probe at boot; tells cloud operators which IP LinkedIn
+    // sees. Never fatal.
+    let client = match reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(5))
+        .build()
+    {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+    match client.get("https://api.ipify.org").send().await {
+        Ok(resp) if resp.status().is_success() => {
+            let body = resp.text().await.unwrap_or_default();
+            tracing::info!(ip = ?body.trim(), "startup.egress_ip");
+        }
+        _ => {
+            tracing::warn!("startup.egress_ip_probe_failed");
+        }
+    }
+}
+
+async fn shutdown_signal() {    let ctrl_c = async {
         signal::ctrl_c().await.expect("ctrl-c handler installed");
     };
 
