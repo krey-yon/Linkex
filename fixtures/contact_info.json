@@ -1,0 +1,16 @@
+{
+  "emailAddress": "ada.lovelace@example.com",
+  "phoneNumbers": [
+    { "number": "+44 20 1234 5678" }
+  ],
+  "websites": [
+    { "url": "https://ada-lovelace.example.com" }
+  ],
+  "twitterHandles": [
+    { "name": "@adalovelace" }
+  ],
+  "birthDateOn": { "month": 9, "day": 19 },
+  "ims": [
+    { "provider": "skype", "id": "adalovelace" }
+  ]
+}

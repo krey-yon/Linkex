@@ -1,0 +1,166 @@
+{
+  "profile": {
+    "firstName": "Ada",
+    "lastName": "Lovelace",
+    "headline": "Analytical Engineer at Example Corp",
+    "summary": "Turing-complete automation for fictional problem spaces.\n\nFun with formal languages and lazy evaluation.",
+    "publicIdentifier": "adalovelace",
+    "objectUrn": "urn:li:member:123456789",
+    "entityUrn": "urn:li:fsd_profile:BC0EXAMPLE0",
+    "geoLocationName": "London, United Kingdom",
+    "location": {
+      "basicLocation": {
+        "countryCode": "gb",
+        "postalCode": "SW1A"
+      }
+    }
+  },
+  "positionView": {
+    "elements": [
+      {
+        "title": "Staff Systems Engineer",
+        "employmentType": "FULL_TIME",
+        "locationName": "London",
+        "description": "Delivered the hourly batch pipeline.",
+        "company": {
+          "miniCompany": {
+            "name": "Other Corp",
+            "entityUrn": "urn:li:fsd_company:515151"
+          }
+        },
+        "timePeriod": { "startDate": { "year": 2020, "month": 1 }, "endDate": { "year": 2024, "month": 3 } }
+      },
+      {
+        "title": "Junior Developer",
+        "employmentType": "INTERNSHIP",
+        "locationName": "Cambridge",
+        "company": {
+          "miniCompany": {
+            "name": "Example Corp",
+            "entityUrn": "urn:li:fsd_company:424242"
+          }
+        },
+        "timePeriod": { "startDate": { "year": 2018, "month": 9 }, "endDate": { "year": 2019, "month": 5 } }
+      }
+    ]
+  },
+  "educationView": {
+    "elements": [
+      {
+        "school": {
+          "schoolName": "University of Example",
+          "entityUrn": "urn:li:fsd_school:777"
+        },
+        "degreeName": "Master of Engineering",
+        "fieldOfStudy": "Computer Science",
+        "grade": "First class honours",
+        "activities": "Robotics society",
+        "timePeriod": { "startDate": { "year": 2019, "month": 9 }, "endDate": { "year": 2020, "month": 8 } }
+      }
+    ]
+  },
+  "skillView": {
+    "elements": [
+      { "name": "Rust", "endorsementCount": 42 },
+      { "name": "Python", "endorsementCount": 31 },
+      { "name": "Systems Programming", "endorsementCount": 0 }
+    ]
+  },
+  "certificationView": {
+    "elements": [
+      {
+        "name": "Example Cloud Architect",
+        "authority": "Example Academy",
+        "licenseNumber": "ECA-2020-0042",
+        "url": "https://example.com/certs/eca",
+        "timePeriod": { "startDate": { "year": 2020, "month": 2 } }
+      }
+    ]
+  },
+  "languageView": {
+    "elements": [
+      { "name": "English", "proficiency": "NATIVE_OR_BILINGUAL" },
+      { "name": "Francais", "proficiency": "FULL_PROFESSIONAL" }
+    ]
+  },
+  "projectView": {
+    "elements": [
+      {
+        "title": "Hypothetical Lisp",
+        "description": "A toy interpreter.",
+        "url": "https://example.com/projects/lisp",
+        "timePeriod": { "startDate": { "year": 2023, "month": 1 }, "endDate": { "year": 2023, "month": 6 } }
+      }
+    ]
+  },
+  "publicationView": {
+    "elements": [
+      {
+        "name": "On Model Checking Formalities",
+        "publisher": "Journal of Fictional Systems",
+        "description": "A peer-reviewed thought experiment.",
+        "url": "https://example.com/pub/model-checking",
+        "date": { "year": 2019, "month": 4 }
+      }
+    ]
+  },
+  "honorView": {
+    "elements": [
+      {
+        "title": "Fictional Scholar Prize",
+        "issuer": "Example Academy",
+        "description": "For excellence in counterfactual reasoning.",
+        "issueDate": { "year": 2018, "month": 11 }
+      }
+    ]
+  },
+  "volunteerExperienceView": {
+    "elements": [
+      {
+        "role": "Tutor",
+        "companyName": "Code Club Example",
+        "cause": "EDUCATION",
+        "description": "Weekly mentoring sessions.",
+        "timePeriod": { "startDate": { "year": 2022, "month": 9 } }
+      }
+    ]
+  },
+  "courseView": {
+    "elements": [
+      { "name": "Compiler Construction", "number": "CS-402" },
+      { "name": "Distributed Systems", "number": "CS-505" }
+    ]
+  },
+  "patentView": {
+    "elements": [
+      {
+        "title": "Method for Compressing Fictional Data",
+        "number": "US2024-1234567",
+        "description": "A patent on imagined compression.",
+        "url": "https://example.com/patents/1234567",
+        "issueDate": { "year": 2024, "month": 2 },
+        "pending": false
+      }
+    ]
+  },
+  "testScoreView": {
+    "elements": [
+      {
+        "name": "Example Aptitude Test",
+        "score": "91%",
+        "description": "Top quartile.",
+        "date": { "year": 2017, "month": 8 }
+      }
+    ]
+  },
+  "organizationView": {
+    "elements": [
+      {
+        "name": "Example Users Group",
+        "position": "Board Member",
+        "description": "Community governance.",
+        "timePeriod": { "startDate": { "year": 2021, "month": 1 }, "endDate": { "year": 2023, "month": 12 } }
+      }
+    ]
+  }
+}

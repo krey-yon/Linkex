@@ -1,0 +1,51 @@
+services:
+  api:
+    build: .
+    image: tross:latest
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      ENVIRONMENT: production
+      LOG_FORMAT: json
+      BILLING_ENABLED: "true"
+      REDIS_URL: redis://redis:6379/
+      API_KEY_SEED_PATH: /config/api_keys.json
+      CACHE_TTL_SECONDS: "86400"
+      CACHE_DIR: /data/profiles
+      SESSION_STATE_PATH: /data/linkedin_session.json
+    volumes:
+      # Persistent cache profiles + session state. The app runs as non-root
+      # uid 10001; everything writable lives under /data.
+      - api-data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "tross", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    # deploy.resources.limits.memory: 512M — rounded cap for a single
+    # replica; honored by `docker compose up` under Compose v2 and by swarm.
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  api-data: {}
+  redis-data: {}

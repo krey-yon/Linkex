@@ -1,1 +1,5 @@
 /target
+.env
+.cache
+/config/api_keys.json
+/scripts/config.json

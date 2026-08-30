@@ -1,0 +1,9 @@
+.git
+.env
+.env.*
+target
+.cache
+fixtures
+benches
+tests
+*.md
