@@ -1,0 +1,12 @@
+[
+  {"email":"user@ontross.com","api_key":"tross_sk_b2464cae454124ce1496158e73bde595c86b205d793f81b342fdd4cb9e330d3b","initial_credit_cents":1000},
+  {"email":"user2@ontross.com","api_key":"tross_sk_643b0694cea8160abde804aa1690e1bcd2284538a6bd1958817dcf14edb65101","initial_credit_cents":1000},
+  {"email":"user3@ontross.com","api_key":"tross_sk_e1963307a9c78a3f17b321dfb7c5a17cbe6b2895890a48d119afd89e399992a1","initial_credit_cents":1000},
+  {"email":"user4@ontross.com","api_key":"tross_sk_231fdd25a5061e60f400a3f7de59a4860979a3bd9f5aeb67810fedf963c49b84","initial_credit_cents":1000},
+  {"email":"user5@ontross.com","api_key":"tross_sk_50ff56d2d4bccd9b0bbefff9e970119e379ac712c5221b6d741319bfde72d443","initial_credit_cents":1000},
+  {"email":"user6@ontross.com","api_key":"tross_sk_85906d27358f0102c0b8010a4525936ecf2f4fc4302eb54a1362f14a3c17bad5","initial_credit_cents":1000},
+  {"email":"user7@ontross.com","api_key":"tross_sk_9aa790624536fbe751dbb40fd543c46584927807c945149103b10eb4e82d710f","initial_credit_cents":1000},
+  {"email":"user8@ontross.com","api_key":"tross_sk_5c5d5d834e12defd2fcc9e11d007014a1f74e22057118d5e5558b6547a92cfc0","initial_credit_cents":1000},
+  {"email":"user9@ontross.com","api_key":"tross_sk_6851bfd6920d36ec025cc5a07cdda7558efa7f64193b4c06f3d9a42e480bf882","initial_credit_cents":1000},
+  {"email":"user10@ontross.com","api_key":"tross_sk_96cc2176aef911a41519ead7810022364f04e1fbf9e98e0b9b8b76c39b550699","initial_credit_cents":1000}
+]
