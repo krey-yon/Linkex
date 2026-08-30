@@ -3,8 +3,10 @@ services:
     build: .
     image: tross:latest
     ports:
-      - "8000:8000"
-    env_file: .env
+      - "9090:8000"
+    # .env is gitignored, so it is absent in the remote clone (Coolify). Put
+    # all variables (LINKEDIN_COOKIE_HEADER, API_KEYS, RATE_LIMIT_*, ...) into
+    # Coolify's Environment Variables tab instead — they override `environment`.
     environment:
       ENVIRONMENT: production
       LOG_FORMAT: json
