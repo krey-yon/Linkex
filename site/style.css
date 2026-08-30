@@ -2283,6 +2283,27 @@ html:not([data-preferred-theme="dark"]) {
 }
 .pg-iconbtn svg { display: block; }
 .pg-iconbtn .hgi { font-size: 16px; line-height: 1; }
+
+/* Eye toggle inside the API key field */
+.pg-inputwrap { position: relative; }
+.pg-inputwrap .pg-input { width: 100%; padding-right: 40px; }
+.pg-eye {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--pg-muted, #667085);
+  font-size: 16px;
+  line-height: 0;
+  cursor: pointer;
+}
+.pg-eye:hover { color: var(--pg-accent, #ff5600); }
   border: 1px solid var(--pg-line);
   border-radius: 8px;
   background: #fff;

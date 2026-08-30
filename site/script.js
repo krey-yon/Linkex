@@ -356,6 +356,19 @@
   treeToggle.addEventListener("change", renderResultsView);
   tryBtn.addEventListener("click", runRequest);
 
+  // Eye toggle: show/hide the API key value.
+  const eyeBtn = $("#pg-eye");
+  eyeBtn.addEventListener("click", () => {
+    const show = apiKeyInput.type === "password";
+    apiKeyInput.type = show ? "text" : "password";
+    const icon = eyeBtn.querySelector(".hgi");
+    icon.className = show
+      ? "hgi hgi-stroke hgi-rounded hgi-view-off-slash"
+      : "hgi hgi-stroke hgi-rounded hgi-view";
+    eyeBtn.title = show ? "Hide key" : "Show key";
+    eyeBtn.setAttribute("aria-label", eyeBtn.title);
+  });
+
   document.querySelectorAll(".pg-tab").forEach((tab) =>
     tab.addEventListener("click", () => switchTab(tab.dataset.tab))
   );

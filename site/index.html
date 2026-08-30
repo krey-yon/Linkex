@@ -378,10 +378,14 @@
                     placeholder="https://www.linkedin.com/in/satyanadella" />
                 </div>
                 <div class="pg-field">
-                  <label class="pg-label" for="pg-api-key">X-API-Key</label>
-                  <input id="pg-api-key" class="pg-input" type="password" spellcheck="false"
-                    placeholder="tross_sk_…" autocomplete="off" aria-describedby="pg-api-key-help" />
-                  <p id="pg-api-key-help" class="pg-help">Saved in this browser after the key is validated.</p>
+                  <label class="pg-label" for="pg-api-key">Tross API Key</label>
+                  <div class="pg-inputwrap">
+                    <input id="pg-api-key" class="pg-input" type="password" spellcheck="false"
+                      placeholder="tross_sk_…" autocomplete="off" />
+                    <button id="pg-eye" class="pg-eye" type="button" title="Show key" aria-label="Show key">
+                      <i class="hgi hgi-stroke hgi-rounded hgi-view" aria-hidden="true"></i>
+                    </button>
+                  </div>
                 </div>
                 <div class="pg-field">
                   <label class="pg-label" for="pg-fresh">Fresh Fetch</label>
