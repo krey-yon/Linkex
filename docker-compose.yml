@@ -7,6 +7,11 @@ services:
     # .env is gitignored, so it is absent in the remote clone (Coolify). Put
     # all variables (LINKEDIN_COOKIE_HEADER, API_KEYS, RATE_LIMIT_*, ...) into
     # Coolify's Environment Variables tab instead — they override `environment`.
+    env_file:
+      # Local: scripts/linkedin-cookies.js writes LINKEDIN_COOKIE_HEADER here.
+      # required: false — .env is gitignored, absent in the remote Coolify clone.
+      - path: .env
+        required: false
     environment:
       ENVIRONMENT: production
       LOG_FORMAT: json

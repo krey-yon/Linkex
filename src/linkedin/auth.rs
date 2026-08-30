@@ -433,8 +433,11 @@ impl Authenticator {
             tracing::warn!(status = ?response.status(), "auth.session_invalid");
             return Ok(false);
         }
+        // Any other status (400 = CSRF mismatch, 429, 5xx, ...) fails closed:
+        // a "maybe valid" session is what lets a stale on-disk session shadow a
+        // fresh environment cookie set and degrades to PROFILE_NOT_VISIBLE.
         tracing::warn!(status = ?response.status(), "auth.validation_inconclusive");
-        Ok(response.status().as_u16() < 500)
+        Ok(false)
     }
 
     // ----------------------------------------------------------------- headers

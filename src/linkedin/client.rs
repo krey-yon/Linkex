@@ -269,7 +269,10 @@ impl VoyagerClient {
                 last_error = Some(lerr::unavailable(call.name, Some(status)));
                 break;
             } else if status == 401 || status == 403 {
-                if !reauthenticated && !allow_fallback {
+                // One re-auth per fetch regardless of fallback: a stale
+                // session must self-heal instead of silently degrading a
+                // profile request to PROFILE_NOT_VISIBLE.
+                if !reauthenticated {
                     reauthenticated = true;
                     tracing::warn!(
                         endpoint = call.name,
