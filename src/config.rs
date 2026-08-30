@@ -364,17 +364,21 @@ impl Settings {
         s.trusted_proxies = parse_csv("TRUSTED_PROXIES");
 
         // ----------------------------------------------------- linkedin identity
-        s.linkedin_li_at = blank_to_none("LINKEDIN_LI_AT");
-        s.linkedin_jsessionid = blank_to_none("LINKEDIN_JSESSIONID");
+        // Coolify's env UI escapes double quotes in pasted values (`"` ->
+        // `\"`), which turns the cookie values into garbage LinkedIn 400s.
+        // Strip those escapes on load; values must be kept quote-free anyway.
+        s.linkedin_li_at = blank_to_none("LINKEDIN_LI_AT").map(|v| unescape_quotes(&v));
+        s.linkedin_jsessionid = blank_to_none("LINKEDIN_JSESSIONID").map(|v| unescape_quotes(&v));
         for (env_name, cookie_name) in EXTRA_COOKIE_ENV_MAP {
             if let Some(value) = blank_to_none(env_name) {
                 s.linkedin_extra_cookies
-                    .push((cookie_name.to_string(), value));
+                    .push((cookie_name.to_string(), unescape_quotes(&value)));
             }
         }
         s.linkedin_email = blank_to_none("LINKEDIN_EMAIL");
         s.linkedin_password = blank_to_none("LINKEDIN_PASSWORD");
-        s.linkedin_cookie_header = blank_to_none("LINKEDIN_COOKIE_HEADER");
+        s.linkedin_cookie_header =
+            blank_to_none("LINKEDIN_COOKIE_HEADER").map(|v| unescape_quotes(&v));
         if let Some(value) = nonempty_var("ALLOW_PASSWORD_LOGIN") {
             s.allow_password_login = parse_bool("ALLOW_PASSWORD_LOGIN", &value)?;
         }
@@ -487,10 +491,7 @@ impl Settings {
                 "CORS is set to '*' in production"
             );
         }
-        s.cookie_fingerprint = s
-            .linkedin_cookie_header
-            .as_deref()
-            .map(fingerprint_cookie_header);
+        s.cookie_fingerprint = s.fingerprint();
         Ok(s)
     }
 
@@ -592,9 +593,18 @@ fn blank_to_none(name: &str) -> Option<String> {
     env::var(name).ok().filter(|v| !v.trim().is_empty())
 }
 
+/// Cookie values carried across env-var transports (Coolify UI escapes
+/// `"` as `\"`; some pastes keep raw `"`). Neither form is what LinkedIn
+/// wants — its cookie parser accepts the bare value — so collapse both:
+/// `\"v=2&...\"` / `"v=2&..."` -> `v=2&...`.
+fn unescape_quotes(value: &str) -> String {
+    value.replace("\\\"", "\"").replace('"', "")
+}
+
 /// Heads of the security-relevant cookies plus their total length, so the
-/// startup log can prove which cookie header the container received and
-/// whether it was truncated, without printing a secret.
+/// startup log can prove which cookie set the container received and
+/// whether it was truncated, without printing a secret. Covers both the
+/// combined header and the split env vars.
 fn fingerprint_cookie_header(header: &str) -> String {
     fn head(value: &str, n: usize) -> String {
         let v = value.trim();
@@ -621,6 +631,33 @@ fn fingerprint_cookie_header(header: &str) -> String {
         if jsessionid.is_empty() { "MISSING" } else { jsessionid.as_str() },
         if cf_bm.is_empty() { "MISSING" } else { cf_bm.as_str() },
     )
+}
+
+impl Settings {
+    /// Fingerprint over whichever cookie source is configured — the full
+    /// header, or the split individual env vars.
+    fn fingerprint(&self) -> Option<String> {
+        if let Some(header) = self.linkedin_cookie_header.as_deref() {
+            return Some(fingerprint_cookie_header(header));
+        }
+        let mut li_at = String::new();
+        let mut jsessionid = String::new();
+        if let Some(v) = self.linkedin_li_at.as_deref() {
+            li_at = v.chars().take(12).collect();
+        }
+        if let Some(v) = self.linkedin_jsessionid.as_deref() {
+            jsessionid = v.chars().take(12).collect();
+        }
+        if li_at.is_empty() {
+            return None;
+        }
+        Some(format!(
+            "split li_at={} JSESSIONID={} extra_cookies={:?}",
+            li_at,
+            jsessionid,
+            self.linkedin_extra_cookies.iter().map(|(n, _)| n.as_str()).collect::<Vec<_>>(),
+        ))
+    }
 }
 
 fn split_csv(value: &str) -> Vec<String> {
@@ -706,6 +743,14 @@ mod tests {
         assert!(validate_proxy_url("socks5://127.0.0.1:1080").is_ok());
         assert!(validate_proxy_url("ftp://x.y").is_err());
         assert!(validate_proxy_url("not a url").is_err());
+    }
+
+    #[test]
+    fn quote_escapes_are_collapsed() {
+        assert_eq!(unescape_quotes("v=2&abc"), "v=2&abc");
+        assert_eq!(unescape_quotes("\"v=2&abc\""), "v=2&abc");
+        assert_eq!(unescape_quotes("\\\"v=2&abc\\\""), "v=2&abc");
+        assert_eq!(unescape_quotes(r#"\"v=2&abc\""#), "v=2&abc");
     }
 
     #[test]
