@@ -402,7 +402,9 @@ impl Authenticator {
             .map_err(|e| lerr::auth_failed(&format!("Could not reach LinkedIn: {e}"), "me"))?;
         self.absorb_cookies(jar, session);
 
-        if response.status() == reqwest::StatusCode::OK {
+        let status = response.status();
+
+        if status == reqwest::StatusCode::OK {
             let payload = safe_json(response).await;
             let mini = payload.get("miniProfile").and_then(Value::as_object);
             session.member_urn = mini
@@ -415,28 +417,33 @@ impl Authenticator {
             return Ok(true);
         }
 
-        if session.signed_out() || is_sign_out(&response) {
-            tracing::warn!(status = ?response.status(), "auth.signed_out_by_linkedin");
+        // Capture the failure body: empty/HTML means an anti-bot block by
+        // source IP, "CSRF check failed." means a cookie pair problem. This
+        // is what tells cloud operators apart from a bad env var.
+        let sign_out = session.signed_out() || is_sign_out(&response);
+        let response_body = response.text().await.unwrap_or_default();
+        let body_snippet = &response_body[..response_body.len().min(256)];
+
+        if sign_out {
+            tracing::warn!(status = ?status, "auth.signed_out_by_linkedin");
             return Err(lerr::session_expired(
                 "LinkedIn signed this session out server-side. Capture a fresh cookie set \
                  from a signed-in browser - ideally the entire Cookie header, so the \
                  device cookies (bcookie, bscookie, liap) travel with the auth token - \
                  and set USER_AGENT to that browser's user agent.",
                 "me",
-                Some(i64::from(response.status().as_u16())),
+                Some(i64::from(status.as_u16())),
             ));
         }
 
-        if response.status() == reqwest::StatusCode::UNAUTHORIZED
-            || response.status() == reqwest::StatusCode::FORBIDDEN
-        {
-            tracing::warn!(status = ?response.status(), "auth.session_invalid");
+        if status == reqwest::StatusCode::UNAUTHORIZED || status == reqwest::StatusCode::FORBIDDEN {
+            tracing::warn!(status = ?status, body = %body_snippet, "auth.session_invalid");
             return Ok(false);
         }
         // Any other status (400 = CSRF mismatch, 429, 5xx, ...) fails closed:
         // a "maybe valid" session is what lets a stale on-disk session shadow a
         // fresh environment cookie set and degrades to PROFILE_NOT_VISIBLE.
-        tracing::warn!(status = ?response.status(), "auth.validation_inconclusive");
+        tracing::warn!(status = ?status, body = %body_snippet, "auth.validation_inconclusive");
         Ok(false)
     }
 
