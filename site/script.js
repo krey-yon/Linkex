@@ -42,7 +42,7 @@
     creditEl.textContent = formatUsd(creditCents);
     creditEl.classList.toggle("is-empty", creditCents !== null && creditCents < cacheHitCostCents);
     balanceRateEl.textContent = `${formatUsd(cacheHitCostCents)} hit · ${formatUsd(cacheMissCostCents)} miss`;
-    tryBtn.disabled = !apiKeyInput.value.trim() || creditCents === null || creditCents < cacheHitCostCents;
+    tryBtn.disabled = !apiKeyInput.value.trim() || (creditCents !== null && creditCents < cacheHitCostCents);
   };
 
   const openKeyDialog = (message = "") => {
@@ -56,7 +56,16 @@
   const loadAccount = async (key) => {
     const response = await fetch("/v1/account", { headers: { "X-API-Key": key, Accept: "application/json" } });
     const body = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(body?.error?.message || "Could not validate this API key.");
+    if (!response.ok) {
+      // Backend without billing (local dev) or Redis down: the key still works
+      // for requests — the server enforces billing itself when enabled.
+      if (body?.error?.code === "BILLING_UNAVAILABLE") {
+        creditCents = null;
+        renderCredit();
+        return null;
+      }
+      throw new Error(body?.error?.message || "Could not validate this API key.");
+    }
     creditCents = body.balance_cents;
     cacheHitCostCents = body.cache_hit_cost_cents;
     cacheMissCostCents = body.cache_miss_cost_cents;
@@ -287,7 +296,7 @@
       openKeyDialog("Enter your API key before making a request.");
       return;
     }
-    if (creditCents === null || creditCents < cacheHitCostCents) {
+    if (creditCents !== null && creditCents < cacheHitCostCents) {
       switchTab("results");
       resultsEl.textContent = "This API key does not have enough credit for another request.";
       return;
