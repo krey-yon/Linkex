@@ -2277,6 +2277,11 @@ html:not([data-preferred-theme="dark"]) {
   flex: none;
   width: 32px;
   height: 32px;
+  padding: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+.pg-iconbtn svg { display: block; }
   border: 1px solid var(--pg-line);
   border-radius: 8px;
   background: #fff;
@@ -2427,4 +2432,78 @@ html:not([data-preferred-theme="dark"]) {
   filter: grayscale(1);
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Floating Architecture button + diagram modal */
+.pg-archbtn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2147483600;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--pg-accent, #ff5600);
+  color: #fff;
+  font: 600 14px/1.4 var(--font-fira, var(--font-mono, monospace));
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(255, 86, 0, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pg-archbtn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255, 86, 0, 0.45); }
+.pg-archmodal { position: fixed; inset: 0; z-index: 2147483700; display: flex; align-items: center; justify-content: center; }
+.pg-archmodal[hidden] { display: none; }
+.pg-archbackdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.55); }
+.pg-archpanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(94vw, 1400px);
+  height: min(88vh, 900px);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.pg-archhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--pg-line, #e7e5e4);
+}
+.pg-archtitle { font: 700 15px/1.4 var(--font-fira, var(--font-mono, monospace)); color: var(--pg-ink, #101828); }
+.pg-archtools { display: inline-flex; gap: 8px; }
+.pg-archtools button {
+  min-width: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--pg-line, #e7e5e4);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--pg-muted, #667085);
+  font: 600 13px/1.4 var(--font-fira, var(--font-mono, monospace));
+  cursor: pointer;
+}
+.pg-archtools button:hover { color: var(--pg-accent, #ff5600); border-color: var(--pg-accent, #ff5600); }
+.pg-archclose { font-size: 16px; }
+.pg-archviewport {
+  flex: 1;
+  overflow: hidden;
+  cursor: grab;
+  background:
+    radial-gradient(circle, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  touch-action: none;
+}
+.pg-archviewport:active { cursor: grabbing; }
+.pg-archinner { transform-origin: 0 0; will-change: transform; padding: 24px; }
+.pg-archinner svg { max-width: none !important; height: auto !important; }
+.pg-archinner .node a { cursor: pointer; }
+.pg-archhint {
+  margin: 0;
+  padding: 10px 18px;
+  border-top: 1px solid var(--pg-line, #e7e5e4);
+  font-size: 12.5px;
+  color: var(--pg-muted, #667085);
 }

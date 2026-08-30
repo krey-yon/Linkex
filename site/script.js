@@ -409,4 +409,193 @@
   };
 
   initialize();
+
+  // ------------------------------------------------- architecture diagram
+
+  const ARCH_DEFINITION = `flowchart LR
+
+subgraph group_runtime["Runtime"]
+  node_main["Executable<br/>Rust entrypoint<br/>[main.rs]"]
+  node_app["App assembly<br/>composition root<br/>[app.rs]"]
+  node_state["Shared state<br/>dependencies<br/>[state.rs]"]
+  node_errors["Error mapping<br/>stable API errors<br/>[error.rs]"]
+end
+
+subgraph group_api["Public API"]
+  node_api_routes["Routes<br/>HTTP routing<br/>[mod.rs]"]
+  node_middleware["Request middleware<br/>auth and billing<br/>[middleware.rs]"]
+  node_profile_api["Profile endpoints<br/>HTTP handlers<br/>[profile.rs]"]
+  node_account_api["Account endpoints<br/>HTTP handlers<br/>[account.rs]"]
+  node_system_api["System endpoints<br/>HTTP handlers<br/>[system.rs]"]
+  node_response_domain["Response envelope<br/>API contract<br/>[response.rs]"]
+end
+
+subgraph group_service["Profile Service"]
+  node_profile_service["Profile orchestration<br/>use case<br/>[profile.rs]"]
+  node_cache[("Profile cache<br/>memory and disk cache<br/>[cache.rs]")]
+  node_billing["Billing<br/>credits<br/>[billing.rs]"]
+  node_parser["Voyager parser pipeline<br/>normalization pipeline<br/>[mod.rs]"]
+  node_profile_domain["Stable profile schema<br/>domain contract<br/>[profile.rs]"]
+end
+
+subgraph group_linkedin["LinkedIn Upstream"]
+  node_repository["LinkedIn repository<br/>upstream boundary<br/>[repository.rs]"]
+  node_voyager_client["Voyager client<br/>authenticated HTTP client<br/>[client.rs]"]
+  node_auth_session["Auth and sessions<br/>credential lifecycle<br/>[auth.rs]"]
+  node_throttle["Upstream protection<br/>throttle and circuit breaker<br/>[throttle.rs]"]
+end
+
+subgraph group_data["Data &amp; Operations"]
+  node_config["Runtime config<br/>configuration<br/>[config.rs]"]
+  node_redis[("Redis<br/>external balances store<br/>[docker-compose.yml]")]
+  node_telemetry["Telemetry<br/>structured logging<br/>[telemetry.rs]"]
+end
+
+node_main -->|"starts"| node_app
+node_app -->|"builds"| node_state
+node_app -->|"serves"| node_api_routes
+node_config -->|"configures"| node_app
+node_api_routes -->|"applies"| node_middleware
+node_api_routes -->|"registers"| node_profile_api
+node_api_routes -->|"registers"| node_account_api
+node_api_routes -->|"registers"| node_system_api
+node_profile_api -->|"retrieves profile"| node_profile_service
+node_profile_api -->|"returns"| node_response_domain
+node_middleware -->|"handles billable requests"| node_billing
+node_account_api -->|"reads balance and pricing"| node_billing
+node_profile_service -->|"checks and refreshes"| node_cache
+node_profile_service -->|"fetches on miss"| node_repository
+node_profile_service -->|"parses payload"| node_parser
+node_parser -->|"normalizes into"| node_profile_domain
+node_repository -->|"protects requests with"| node_throttle
+node_throttle -->|"permits calls to"| node_voyager_client
+node_voyager_client -->|"uses session"| node_auth_session
+node_billing -->|"stores balances in"| node_redis
+node_app -->|"initializes"| node_telemetry
+node_api_routes -->|"maps failures through"| node_errors
+
+click node_main "https://github.com/krey-yon/linkex/blob/main/src/main.rs"
+click node_app "https://github.com/krey-yon/linkex/blob/main/src/app.rs"
+click node_state "https://github.com/krey-yon/linkex/blob/main/src/state.rs"
+click node_config "https://github.com/krey-yon/linkex/blob/main/src/config.rs"
+click node_api_routes "https://github.com/krey-yon/linkex/blob/main/src/api/mod.rs"
+click node_middleware "https://github.com/krey-yon/linkex/blob/main/src/api/middleware.rs"
+click node_profile_api "https://github.com/krey-yon/linkex/blob/main/src/api/profile.rs"
+click node_account_api "https://github.com/krey-yon/linkex/blob/main/src/api/account.rs"
+click node_system_api "https://github.com/krey-yon/linkex/blob/main/src/api/system.rs"
+click node_profile_service "https://github.com/krey-yon/linkex/blob/main/src/service/profile.rs"
+click node_cache "https://github.com/krey-yon/linkex/blob/main/src/service/cache.rs"
+click node_billing "https://github.com/krey-yon/linkex/blob/main/src/billing.rs"
+click node_repository "https://github.com/krey-yon/linkex/blob/main/src/linkedin/repository.rs"
+click node_voyager_client "https://github.com/krey-yon/linkex/blob/main/src/linkedin/client.rs"
+click node_auth_session "https://github.com/krey-yon/linkex/blob/main/src/linkedin/auth.rs"
+click node_throttle "https://github.com/krey-yon/linkex/blob/main/src/linkedin/throttle.rs"
+click node_parser "https://github.com/krey-yon/linkex/blob/main/src/parser/mod.rs"
+click node_profile_domain "https://github.com/krey-yon/linkex/blob/main/src/domain/profile.rs"
+click node_response_domain "https://github.com/krey-yon/linkex/blob/main/src/domain/response.rs"
+click node_redis "https://github.com/krey-yon/linkex/blob/main/docker-compose.yml"
+click node_telemetry "https://github.com/krey-yon/linkex/blob/main/src/telemetry.rs"
+click node_errors "https://github.com/krey-yon/linkex/blob/main/src/error.rs"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_main,node_app,node_state,node_errors toneBlue
+class node_api_routes,node_middleware,node_profile_api,node_account_api,node_system_api,node_response_domain toneAmber
+class node_profile_service,node_cache,node_billing,node_parser,node_profile_domain toneMint
+class node_repository,node_voyager_client,node_auth_session,node_throttle toneRose
+class node_config,node_redis,node_telemetry toneIndigo`;
+
+  const archBtn = $("#pg-archbtn");
+  const archModal = $("#pg-archmodal");
+  const archViewport = $("#pg-archviewport");
+  const archInner = $("#pg-archinner");
+  let archLoaded = false;
+  let archScale = 1;
+  let archTx = 0;
+  let archTy = 0;
+
+  const archApply = () => {
+    archInner.style.transform = `translate(${archTx}px, ${archTy}px) scale(${archScale})`;
+  };
+
+  const archReset = () => {
+    archScale = 1;
+    archTx = 0;
+    archTy = 0;
+    archApply();
+  };
+
+  const archZoom = (factor, cx, cy) => {
+    const next = Math.min(4, Math.max(0.3, archScale * factor));
+    if (cx === undefined) {
+      const rect = archViewport.getBoundingClientRect();
+      cx = rect.width / 2;
+      cy = rect.height / 2;
+    }
+    const k = next / archScale;
+    archTx = cx - (cx - archTx) * k;
+    archTy = cy - (cy - archTy) * k;
+    archScale = next;
+    archApply();
+  };
+
+  const openArch = async () => {
+    archModal.hidden = false;
+    if (archLoaded) return;
+    archInner.textContent = "Loading diagram…";
+    try {
+      const mermaid = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
+      mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: "neutral" });
+      const { svg } = await mermaid.render("pg-arch-svg", ARCH_DEFINITION);
+      archInner.innerHTML = svg; // static, repo-owned diagram definition
+      archLoaded = true;
+      archReset();
+    } catch {
+      archInner.textContent = "Could not load the diagram (offline?).";
+    }
+  };
+
+  const closeArch = () => {
+    archModal.hidden = true;
+  };
+
+  archBtn.addEventListener("click", openArch);
+  archModal.querySelectorAll("[data-arch-close]").forEach((el) => el.addEventListener("click", closeArch));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !archModal.hidden) closeArch();
+  });
+  archModal.querySelectorAll("[data-arch-zoom]").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.archZoom;
+      if (action === "in") archZoom(1.2);
+      else if (action === "out") archZoom(1 / 1.2);
+      else archReset();
+    })
+  );
+
+  archViewport.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const rect = archViewport.getBoundingClientRect();
+    archZoom(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - rect.left, e.clientY - rect.top);
+  }, { passive: false });
+
+  let archDrag = null;
+  archViewport.addEventListener("pointerdown", (e) => {
+    archDrag = { x: e.clientX - archTx, y: e.clientY - archTy };
+    archViewport.setPointerCapture(e.pointerId);
+  });
+  archViewport.addEventListener("pointermove", (e) => {
+    if (!archDrag) return;
+    archTx = e.clientX - archDrag.x;
+    archTy = e.clientY - archDrag.y;
+    archApply();
+  });
+  archViewport.addEventListener("pointerup", () => {
+    archDrag = null;
+  });
 })();

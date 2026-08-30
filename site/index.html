@@ -552,5 +552,25 @@
         ></div>
         <link rel="stylesheet" href="shadow-4.css" /></template
     ></a5d2e305-3fa3-470f-91d4-e22125f2726c>
+
+    <button id="pg-archbtn" class="pg-archbtn" type="button">Architecture</button>
+    <div id="pg-archmodal" class="pg-archmodal" hidden>
+      <div class="pg-archbackdrop" data-arch-close></div>
+      <div class="pg-archpanel">
+        <header class="pg-archhead">
+          <span class="pg-archtitle">System architecture</span>
+          <span class="pg-archtools">
+            <button type="button" data-arch-zoom="out" aria-label="Zoom out">&minus;</button>
+            <button type="button" data-arch-zoom="reset">reset</button>
+            <button type="button" data-arch-zoom="in" aria-label="Zoom in">+</button>
+            <button type="button" class="pg-archclose" data-arch-close aria-label="Close">&times;</button>
+          </span>
+        </header>
+        <div id="pg-archviewport" class="pg-archviewport">
+          <div id="pg-archinner" class="pg-archinner"></div>
+        </div>
+        <p class="pg-archhint">scroll to zoom &middot; drag to pan &middot; click a node to open its source</p>
+      </div>
+    </div>
   </body>
 </html>
