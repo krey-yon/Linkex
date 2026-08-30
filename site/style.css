@@ -2282,6 +2282,7 @@ html:not([data-preferred-theme="dark"]) {
   line-height: 0;
 }
 .pg-iconbtn svg { display: block; }
+.pg-iconbtn .hgi { font-size: 16px; line-height: 1; }
   border: 1px solid var(--pg-line);
   border-radius: 8px;
   background: #fff;
