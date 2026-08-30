@@ -21,6 +21,11 @@ services:
       CACHE_TTL_SECONDS: "86400"
       CACHE_DIR: /data/profiles
       SESSION_STATE_PATH: /data/linkedin_session.json
+    # The persisted session file survives across restarts and, once LinkedIn
+    # signs it out, replays a 302 on /me before the env cookie is even tried —
+    # a double-fire LinkedIn bots 400. Remove it at boot so every restart is a
+    # single /me with the fresh cookie header.
+    entrypoint: ["sh", "-c", "if [ -f \"${SESSION_STATE_PATH:-/data/linkedin_session.json}\" ]; then rm -f \"${SESSION_STATE_PATH:-/data/linkedin_session.json}\"; fi; exec tross"]
     volumes:
       # Persistent cache profiles + session state. The app runs as non-root
       # uid 10001; everything writable lives under /data.
